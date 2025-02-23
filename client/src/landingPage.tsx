@@ -55,13 +55,13 @@ function LandingPage() {
               <a href="#home" className="text-gray-600 hover:text-blue-600">Home</a>
               <a href="#services" className="text-gray-600 hover:text-blue-600">Services</a>
               <a href="#about" className="text-gray-600 hover:text-blue-600">About</a>
-              <a href="#contact" className="text-gray-600 hover:text-blue-600">Contact</a>
               <button 
                 onClick={() => setIsAppointmentModalOpen(true)}
                 className="text-gray-600 hover:text-blue-600"
               >
                 Appointment
               </button>
+              <a href="#contact" className="text-gray-600 hover:text-blue-600">Contact</a>
               {/* Login button removed from Auth component and added here */}
               <button
                 onClick={() => document.dispatchEvent(new CustomEvent('openAuthModal'))}
@@ -92,7 +92,6 @@ function LandingPage() {
               <a href="#home" className="block px-3 py-2 text-gray-600 hover:text-blue-600">Home</a>
               <a href="#services" className="block px-3 py-2 text-gray-600 hover:text-blue-600">Services</a>
               <a href="#about" className="block px-3 py-2 text-gray-600 hover:text-blue-600">About</a>
-              <a href="#contact" className="block px-3 py-2 text-gray-600 hover:text-blue-600">Contact</a>
               <button 
                 onClick={() => {
                   setIsAppointmentModalOpen(true);
@@ -102,6 +101,7 @@ function LandingPage() {
               >
                 Appointment
               </button>
+              <a href="#contact" className="block px-3 py-2 text-gray-600 hover:text-blue-600">Contact</a>
               <button
                 onClick={() => {
                   document.dispatchEvent(new CustomEvent('openAuthModal'));
