@@ -6,7 +6,6 @@ export interface Appointment {
     id?: number;
     owner_name: string;
     owner_contact: string;
-    animal: number; // Assuming animal is referenced by its ID
     date: string; // Format: 'YYYY-MM-DD'
     time: string; // Format: 'HH:MM:SS'
 }
