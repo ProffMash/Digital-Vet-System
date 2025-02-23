@@ -1,8 +1,26 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { createContact } from '../Services/contactApi'; 
 
 export default function Support() {
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createContact({ name: subject, email, message });
+      alert('Message sent! Our team will contact you soon.');
+      setShowNewTicketModal(false);
+      setEmail('');
+      setSubject('');
+      setMessage('');
+    } catch (error) {
+      alert('Failed to send message. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -38,22 +56,36 @@ export default function Support() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              alert('Message sent! Our team will contact you soon.');
-              setShowNewTicketModal(false);
-            }} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" className="w-full px-4 py-2 border border-gray-300 rounded-lg" required />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg" required />
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                <textarea rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg" required></textarea>
+                <textarea
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  required
+                ></textarea>
               </div>
               <button
                 type="submit"
