@@ -179,7 +179,7 @@
 
 import { useState, useEffect } from "react";
 // import { getMedicines, updateMedicine, Medicine } from "../path/to/Api";
-import { getMedicines, updateMedicine, Medicine } from "../Services/medsalesApi"; 
+import { getMedicines, updateMedicine, Medicine } from "../Api/medsalesApi"; 
 
 export default function Medications() {
   const [medications, setMedications] = useState<Medicine[]>([]);

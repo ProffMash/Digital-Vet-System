@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { createContact } from '../Services/contactApi'; 
+import { createContact } from '../Api/contactApi'; 
 
 export default function Support() {
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
