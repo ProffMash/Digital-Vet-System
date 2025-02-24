@@ -27,21 +27,27 @@ class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields = '__all__'
+        
 
-
-# Medicine Serializer
 class MedicineSerializer(serializers.ModelSerializer):
-    stock_value = serializers.ReadOnlyField()
+    stock_value = serializers.SerializerMethodField()  # Compute stock value dynamically
 
     class Meta:
         model = Medicine
         fields = '__all__'
 
+    def get_stock_value(self, obj):
+        """Calculate the total stock value of the medicine."""
+        return obj.stock_value()
 
-# Sales Serializer
+
 class SaleSerializer(serializers.ModelSerializer):
-    total_price = serializers.ReadOnlyField()
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
+    medicine_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Sale
-        fields = '__all__'
+        fields = ['id', 'total_price', 'quantity_sold', 'sale_date', 'medicine', 'medicine_name']
+
+    def get_medicine_name(self, obj):
+        return obj.medicine.name

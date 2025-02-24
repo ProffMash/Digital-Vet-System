@@ -42,15 +42,12 @@ class AnimalDiagnosis(models.Model):
 class Appointment(models.Model):
     owner_name = models.CharField(max_length=100)
     owner_contact = models.CharField(max_length=15)
-    animal = models.ForeignKey(Animal, on_delete=models.CASCADE)
     date = models.DateField()
     time = models.TimeField()
 
     def __str__(self):
         return f"Appointment for {self.animal.name} on {self.date}"
 
-
-# Medicine Model
 class Medicine(models.Model):
     CATEGORY_CHOICES = [
         ('antibiotic', 'Antibiotic'),
@@ -72,24 +69,62 @@ class Medicine(models.Model):
         return self.quantity * self.price
 
 
-# Sales Model
+
 class Sale(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="sales")
     quantity_sold = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     sale_date = models.DateTimeField(default=timezone.now)
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from django.db import transaction
+from .serializers import SaleSerializer
 
+@api_view(['POST'])
+def create_sale(request):
+    try:
+        with transaction.atomic():
+            sale_serializer = SaleSerializer(data=request.data)
+            if sale_serializer.is_valid():
+                medicine_id = request.data.get('medicine')
+                quantity_sold = int(request.data.get('quantity_sold', 0))
+
+                medicine = Medicine.objects.get(id=medicine_id)
+
+                if medicine.quantity < quantity_sold:
+                    return Response({"error": "Not enough stock"}, status=status.HTTP_400_BAD_REQUEST)
+
+                total_price = quantity_sold * medicine.price  # Calculate total price
+
+                # Deduct stock
+                medicine.quantity -= quantity_sold
+                medicine.save(update_fields=["quantity"])
+
+                # Save sale with total price
+                sale = sale_serializer.save(total_price=total_price)
+
+                return Response(SaleSerializer(sale).data, status=status.HTTP_201_CREATED)
+            
+            return Response(sale_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
     def save(self, *args, **kwargs):
         """Automatically calculate total price & update medicine stock."""
         if self.medicine and self.quantity_sold:
             self.total_price = self.quantity_sold * self.medicine.price  # Calculate total price
-            
-            # Update medicine stock
-            if self.medicine.quantity >= self.quantity_sold:
-                self.medicine.quantity -= self.quantity_sold
-                self.medicine.save()
-            else:
+
+            # Check if enough stock is available before modifying
+            if self.medicine.quantity < self.quantity_sold:
                 raise ValueError("Not enough stock available")
+
+            # Deduct stock
+            self.medicine.quantity -= self.quantity_sold
+            self.medicine.save(update_fields=["quantity"])  # Save only the quantity field
         
         super().save(*args, **kwargs)  # Save the sale record
 
