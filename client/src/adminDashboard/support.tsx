@@ -1,246 +1,145 @@
-import { useState } from 'react';
-import { XCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, CheckCircle2, XCircle } from 'lucide-react';
+import { getContacts, deleteContact, Contact } from '../Api/contactApi';  // Importing the API functions
+import { Toaster, toast } from 'sonner';
 
-interface Ticket {
-  id: number;
-  subject: string;
-  message: string;
-  status: 'Open' | 'In Progress' | 'Resolved';
-  priority: 'Low' | 'Medium' | 'High';
-  createdAt: string;
-  user: {
-    name: string;
-    email: string;
-  };
-}
+const AdminSupport: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [messages, setMessages] = useState<Contact[]>([]); // State to hold support messages
+  const [loading, setLoading] = useState(true); // Loading state
+  const [currentPage, setCurrentPage] = useState(1); // Current page
+  const [itemsPerPage] = useState(6); // Number of items per page
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages
 
-export default function SupportTickets() {
-  const [tickets, setTickets] = useState<Ticket[]>([
-    {
-      id: 1,
-      subject: "Unable to book appointment",
-      message: "I'm trying to book an appointment for my dog but getting an error.",
-      status: "Open",
-      priority: "High",
-      createdAt: "2025-03-15 10:30 AM",
-      user: {
-        name: "John Doe",
-        email: "john@example.com"
+  // Fetch support messages on component mount or page change
+  useEffect(() => {
+    const fetchSupportMessages = async () => {
+      try {
+        const data = await getContacts(); // Fetch all messages
+        const filteredData = data.filter(message =>
+          message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          message.message.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        setMessages(filteredData);
+        setTotalPages(Math.ceil(filteredData.length / itemsPerPage)); // Calculate total pages
+      } catch (error) {
+        console.error('Error fetching support messages:', error);
+      } finally {
+        setLoading(false);
       }
-    },
-    {
-      id: 2,
-      subject: "Question about medication",
-      message: "Need clarification about dosage for prescribed medication.",
-      status: "In Progress",
-      priority: "Medium",
-      createdAt: "2025-03-14 3:45 PM",
-      user: {
-        name: "Jane Smith",
-        email: "jane@example.com"
-      }
-    },
-    {
-      id: 3,
-      subject: "Payment issue",
-      message: "Payment was processed but no confirmation received.",
-      status: "Resolved",
-      priority: "High",
-      createdAt: "2025-03-13 2:15 PM",
-      user: {
-        name: "Mike Johnson",
-        email: "mike@example.com"
-      }
-    }
-  ]);
+    };
 
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [showTicketModal, setShowTicketModal] = useState(false);
+    fetchSupportMessages();
+  }, [searchQuery, currentPage]); // Re-fetch when search query or page changes
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Open':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'In Progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'Resolved':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  // Handle delete action
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteContact(id);
+      setMessages(messages.filter(message => message.contact_id !== id)); // Remove the deleted message from the list
+      toast.success('Message deleted successfully');
+    } catch (error) {
+      console.error('Error deleting support message:', error);
+      toast.error('Failed to delete message');
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High':
-        return 'bg-red-100 text-red-800';
-      case 'Medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Low':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // Get messages for the current page
+  const paginatedMessages = messages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const handleStatusChange = (ticketId: number, newStatus: 'Open' | 'In Progress' | 'Resolved') => {
-    setTickets(tickets.map(ticket => 
-      ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
-    ));
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Support Tickets</h2>
-        <div className="flex space-x-4">
-          <select className="border border-gray-300 rounded-lg px-4 py-2">
-            <option value="all">All Tickets</option>
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-          </select>
+    <div className="bg-white rounded-xl shadow-md p-6">
+      <Toaster position="top-center" richColors />
+      <div className="border-b pb-4 mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Active Tickets</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
+          <div className="relative w-full sm:w-96">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Search messages..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            />
+          </div>
         </div>
       </div>
-
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="text-left text-sm text-gray-700 border-b border-gray-200 bg-gray-100">
+              <th className="px-6 py-4">ID</th>
+              <th className="px-6 py-4">Name</th>
+              <th className="px-6 py-4">Email</th>
+              <th className="px-6 py-4">Message</th>
+              <th className="px-6 py-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <td colSpan={5} className="text-center py-4 text-gray-600">
+                  Loading...
+                </td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {tickets.map((ticket) => (
-                <tr key={ticket.id}>
+            ) : paginatedMessages.length > 0 ? (
+              paginatedMessages.map(message => (
+                <tr key={message.contact_id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="px-6 py-4">#{message.contact_id}</td>
+                  <td className="px-6 py-4">{message.name}</td>
+                  <td className="px-6 py-4">{message.email}</td>
+                  <td className="px-6 py-4 truncate max-w-xs">{message.message}</td>
                   <td className="px-6 py-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{ticket.subject}</div>
-                      <div className="text-sm text-gray-500">{ticket.message.substring(0, 50)}...</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{ticket.user.name}</div>
-                      <div className="text-sm text-gray-500">{ticket.user.email}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(ticket.status)}`}>
-                      {ticket.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(ticket.priority)}`}>
-                      {ticket.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {ticket.createdAt}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setSelectedTicket(ticket);
-                          setShowTicketModal(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        View Details
+                    <div className="flex items-center space-x-3">
+                      <button className="text-green-600 hover:text-green-800" onClick={() => message.contact_id !== undefined && handleDelete(message.contact_id)}>
+                        <CheckCircle2 className="h-5 w-5" />
+                      </button>
+                      <button className="text-red-600 hover:text-red-800" onClick={() => message.contact_id !== undefined && handleDelete(message.contact_id)}>
+                        <XCircle className="h-5 w-5" />
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="text-center py-4 text-gray-600">
+                  No support messages found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-
-      {/* Ticket Detail Modal */}
-      {showTicketModal && selectedTicket && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 max-w-2xl w-full">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">{selectedTicket.subject}</h3>
-                <p className="text-sm text-gray-500">Ticket #{selectedTicket.id}</p>
-              </div>
-              <button
-                onClick={() => setShowTicketModal(false)}
-                className="text-gray-400 hover:text-gray-500"
-              >
-                <XCircle className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">User Information</h4>
-                <p className="mt-1 text-sm text-gray-900">{selectedTicket.user.name}</p>
-                <p className="text-sm text-gray-600">{selectedTicket.user.email}</p>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Message</h4>
-                <p className="mt-1 text-sm text-gray-900">{selectedTicket.message}</p>
-              </div>
-
-              <div className="flex space-x-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500">Status</h4>
-                  <select
-                    value={selectedTicket.status}
-                    onChange={(e) => handleStatusChange(selectedTicket.id, e.target.value as 'Open' | 'In Progress' | 'Resolved')}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                  >
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500">Priority</h4>
-                  <p className={`mt-1 px-2 py-1 text-xs font-medium rounded-full inline-block ${getPriorityColor(selectedTicket.priority)}`}>
-                    {selectedTicket.priority}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Response</h4>
-                <textarea
-                  rows={4}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Type your response here..."
-                ></textarea>
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={() => setShowTicketModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  Close
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Send Response
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="flex justify-between items-center p-4 mt-4 border-t border-gray-200">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="text-gray-600 hover:text-blue-600 disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="text-gray-600 hover:text-blue-600 disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default AdminSupport;
