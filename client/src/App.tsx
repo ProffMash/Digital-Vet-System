@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./landingPage";
 import Dashboard from "./userDashboard/dashboard";
 import AdminDashboard from "./adminDashboard/dashboard";
@@ -30,19 +31,25 @@ function App() {
     localStorage.removeItem("isAdmin");
   };
 
-  if (isAuthenticated) {
-    return isAdmin ? (
-      <AdminDashboard onLogout={handleLogout} />
-    ) : (
-      <Dashboard onLogout={handleLogout} />
-    );
-  }
-
   return (
-    <div>
-      <Auth onLogin={handleLogin} />
-      <LandingPage />
-    </div>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<Auth onLogin={handleLogin} />} />
+
+        {/* Protected Routes */}
+        {isAuthenticated ? (
+          isAdmin ? (
+            <Route path="/admin-dashboard" element={<AdminDashboard onLogout={handleLogout} />} />
+          ) : (
+            <Route path="/user-dashboard" element={<Dashboard onLogout={handleLogout} />} />
+          )
+        ) : (
+          <Route path="*" element={<Navigate to="/auth" />} />
+        )}
+      </Routes>
+    </Router>
   );
 }
 

@@ -1,57 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { X } from "lucide-react";
 
 interface AuthProps {
   onLogin: (isAdmin: boolean) => void;
 }
 
 export default function Auth({ onLogin }: AuthProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const [isModalOpen, setIsModalOpen] = useState(location.pathname === "/auth");
   const [isRegister, setIsRegister] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   useEffect(() => {
-    const handleOpenModal = () => setIsModalOpen(true);
-    document.addEventListener('openAuthModal', handleOpenModal);
-    return () => document.removeEventListener('openAuthModal', handleOpenModal);
-  }, []);
+    if (location.pathname === "/auth") {
+      setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
+    }
+  }, [location]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isRegister && formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      alert("Passwords do not match!");
       return;
     }
+
     onLogin(isAdmin);
     setIsModalOpen(false);
+    
+    // Redirect based on user role
+    navigate(isAdmin ? "/admin-dashboard" : "/user-dashboard");
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    navigate("/");
   };
 
   if (!isModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+      onClick={closeModal} // Close when clicking outside
+    >
+      <div
+        className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+      >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            {isRegister ? 'Create Account' : 'Login'}
+            {isRegister ? "Create Account" : "Login"}
           </h2>
-          <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+          <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -109,22 +130,14 @@ export default function Auth({ onLogin }: AuthProps) {
               Login as Administrator
             </label>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            {isRegister ? 'Register' : 'Login'}
+          <button type="submit" className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">
+            {isRegister ? "Register" : "Login"}
           </button>
         </form>
-        
+
         <div className="mt-4 text-center">
-          <button
-            onClick={() => setIsRegister(!isRegister)}
-            className="text-blue-600 hover:text-blue-700 text-sm"
-          >
-            {isRegister
-              ? 'Already have an account? Login'
-              : "Don't have an account? Register"}
+          <button onClick={() => setIsRegister(!isRegister)} className="text-blue-600 hover:text-blue-700 text-sm">
+            {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
           </button>
         </div>
       </div>
