@@ -1,71 +1,100 @@
-import axios from 'axios';
 
-const MEDICINE_API_URL = 'http://127.0.0.1:8000/api/medicine/';
-const SALES_API_URL = 'http://127.0.0.1:8000/api/sales/';
+import axios from "axios";
+
+const BASE_URL = "http://127.0.0.1:8000/api/medicine/";
 
 export interface Medicine {
-    id?: number;
-    name: string;
-    category: string;
-    quantity: number;
-    price: number;
-    expiry_date: string; // Format: 'YYYY-MM-DD'
+  id?: number;
+  name: string;
+  category: string;
+  price: number;
+  quantity: number;
+  expiry_date: string;
 }
 
-export interface Sale {
-    id?: number;
-    medicine: number; // Assuming medicine is referenced by its ID
-    quantity_sold: number;
-    total_price?: number;
-    sale_date?: string; // Format: 'YYYY-MM-DDTHH:MM:SSZ'
-}
-
-// Medicine API functions
+// Fetch all medicines
 export const getMedicines = async (): Promise<Medicine[]> => {
-    const response = await axios.get(MEDICINE_API_URL);
+  try {
+    const response = await axios.get<Medicine[]>(BASE_URL);
     return response.data;
+  } catch (error) {
+    console.error("Error fetching medicines:", error);
+    throw error;
+  }
 };
 
-export const getMedicine = async (id: number): Promise<Medicine> => {
-    const response = await axios.get(`${MEDICINE_API_URL}${id}/`);
+// Fetch a single medicine by ID
+export const getMedicineById = async (id: number): Promise<Medicine> => {
+  try {
+    const response = await axios.get<Medicine>(`${BASE_URL}${id}/`);
     return response.data;
+  } catch (error) {
+    console.error("Error fetching medicine:", error);
+    throw error;
+  }
 };
 
+// Create a new medicine
 export const createMedicine = async (medicine: Medicine): Promise<Medicine> => {
-    const response = await axios.post(MEDICINE_API_URL, medicine);
+  try {
+    const response = await axios.post<Medicine>(BASE_URL, medicine);
     return response.data;
+  } catch (error) {
+    console.error("Error creating medicine:", error);
+    throw error;
+  }
 };
 
+// Update an existing medicine
 export const updateMedicine = async (id: number, medicine: Medicine): Promise<Medicine> => {
-    const response = await axios.put(`${MEDICINE_API_URL}${id}/`, medicine);
+  try {
+    const response = await axios.put<Medicine>(`${BASE_URL}${id}/`, medicine);
     return response.data;
+  } catch (error) {
+    console.error("Error updating medicine:", error);
+    throw error;
+  }
 };
 
+// Delete a medicine by ID
 export const deleteMedicine = async (id: number): Promise<void> => {
-    await axios.delete(`${MEDICINE_API_URL}${id}/`);
+  try {
+    await axios.delete(`${BASE_URL}${id}/`);
+  } catch (error) {
+    console.error("Error deleting medicine:", error);
+    throw error;
+  }
 };
 
-// Sale API functions
-export const getSales = async (): Promise<Sale[]> => {
-    const response = await axios.get(SALES_API_URL);
+// Get total medicine count
+export const getMedicineCount = async (): Promise<{ total_medicines: number }> => {
+  try {
+    const response = await axios.get<{ total_medicines: number }>(`${BASE_URL}count/`);
     return response.data;
+  } catch (error) {
+    console.error("Error fetching medicine count:", error);
+    throw error;
+  }
 };
 
-export const getSale = async (id: number): Promise<Sale> => {
-    const response = await axios.get(`${SALES_API_URL}${id}/`);
+// Get medicines with low stock
+export const getLowStockMedicines = async (): Promise<Medicine[]> => {
+  try {
+    const response = await axios.get<Medicine[]>(`${BASE_URL}low-stock/`);
     return response.data;
+  } catch (error) {
+    console.error("Error fetching low stock medicines:", error);
+    throw error;
+  }
 };
 
-export const createSale = async (sale: Sale): Promise<Sale> => {
-    const response = await axios.post(SALES_API_URL, sale);
+// Get total stock value
+export const getTotalStockValue = async (): Promise<{ total_stock_value: number }> => {
+  try {
+    const response = await axios.get<{ total_stock_value: number }>(`${BASE_URL}total-stock-value/`);
     return response.data;
-};
-
-export const updateSale = async (id: number, sale: Sale): Promise<Sale> => {
-    const response = await axios.put(`${SALES_API_URL}${id}/`, sale);
-    return response.data;
-};
-
-export const deleteSale = async (id: number): Promise<void> => {
-    await axios.delete(`${SALES_API_URL}${id}/`);
+  } catch (error) {
+    console.error("Error fetching total stock value:", error);
+    throw error;
+  }
 };

@@ -1,365 +1,203 @@
-// import { useState } from "react";
-
-// interface Medication {
-//   id: number;
-//   name: string;
-//   category: string;
-//   price: number;
-//   quantity: number;
-// }
-
-// const medications: Medication[] = [
-//   { id: 1, name: "Paracetamol", category: "Painkiller", price: 5, quantity: 10 },
-//   { id: 2, name: "Amoxicillin", category: "Antibiotic", price: 12, quantity: 5 },
-//   { id: 3, name: "Vitamin C", category: "Supplement", price: 8, quantity: 20 },
-// ];
-
-// export default function Medications() {
-//   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
-//   const [showPaymentModal, setShowPaymentModal] = useState(false);
-//   const [step, setStep] = useState(1);
-//   const [phoneNumber, setPhoneNumber] = useState("");
-//   const [cardNumber, setCardNumber] = useState("");
-//   const [expiryDate, setExpiryDate] = useState("");
-//   const [cvv, setCvv] = useState("");
-
-//   const handlePurchase = (medication: Medication) => {
-//     setSelectedMedication(medication);
-//     setStep(1); // Start at step 1
-//     setShowPaymentModal(true);
-//   };
-
-//   const handleNextStep = () => {
-//     if (step === 1 && phoneNumber.length < 10) {
-//       alert("Please enter a valid phone number.");
-//       return;
-//     }
-//     if (step === 2 && (cardNumber.length < 16 || expiryDate.length < 5 || cvv.length < 3)) {
-//       alert("Please enter valid card details.");
-//       return;
-//     }
-//     setStep((prev) => prev + 1);
-//   };
-
-//   const handleConfirmPayment = () => {
-//     alert("Payment Successful! 🎉");
-//     setShowPaymentModal(false);
-//     setSelectedMedication(null);
-//   };
-
-//   return (
-//     <div className="p-6">
-//       <h2 className="text-2xl font-semibold mb-4">Available Medications</h2>
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-//         {medications.map((med) => (
-//           <div key={med.id} className="border p-4 rounded-lg shadow-md">
-//             <h3 className="text-lg font-medium">{med.name}</h3>
-//             <p className="text-gray-600">Category: {med.category}</p>
-//             <p className="text-gray-800 font-semibold">Price: ${med.price}</p>
-//             <p className="text-gray-500">Stock: {med.quantity}</p>
-//             <button
-//               onClick={() => handlePurchase(med)}
-//               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
-//             >
-//               Purchase
-//             </button>
-//           </div>
-//         ))}
-//       </div>
-
-//       {showPaymentModal && selectedMedication && (
-//         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-//           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-//             <h3 className="text-xl font-semibold mb-2">Payment for {selectedMedication.name}</h3>
-//             <p className="text-gray-800 font-semibold mb-4">Total: ${selectedMedication.price}</p>
-
-//             {/* Step 1: Enter Phone Number */}
-//             {step === 1 && (
-//               <div>
-//                 <label className="block text-gray-700 font-medium">Phone Number</label>
-//                 <input
-//                   type="text"
-//                   value={phoneNumber}
-//                   onChange={(e) => setPhoneNumber(e.target.value)}
-//                   className="border p-2 w-full rounded mt-1"
-//                   placeholder="Enter phone number"
-//                 />
-//               </div>
-//             )}
-
-//             {/* Step 2: Enter Card Details */}
-//             {step === 2 && (
-//               <div>
-//                 <label className="block text-gray-700 font-medium">Card Number</label>
-//                 <input
-//                   type="text"
-//                   value={cardNumber}
-//                   onChange={(e) => setCardNumber(e.target.value)}
-//                   className="border p-2 w-full rounded mt-1"
-//                   placeholder="XXXX XXXX XXXX XXXX"
-//                   maxLength={16}
-//                 />
-
-//                 <div className="flex space-x-4 mt-2">
-//                   <div className="w-1/2">
-//                     <label className="block text-gray-700 font-medium">Expiry Date</label>
-//                     <input
-//                       type="text"
-//                       value={expiryDate}
-//                       onChange={(e) => setExpiryDate(e.target.value)}
-//                       className="border p-2 w-full rounded mt-1"
-//                       placeholder="MM/YY"
-//                       maxLength={5}
-//                     />
-//                   </div>
-//                   <div className="w-1/2">
-//                     <label className="block text-gray-700 font-medium">CVV</label>
-//                     <input
-//                       type="text"
-//                       value={cvv}
-//                       onChange={(e) => setCvv(e.target.value)}
-//                       className="border p-2 w-full rounded mt-1"
-//                       placeholder="CVV"
-//                       maxLength={3}
-//                     />
-//                   </div>
-//                 </div>
-//               </div>
-//             )}
-
-//             {/* Step 3: Confirm Payment */}
-//             {step === 3 && (
-//               <div className="text-center">
-//                 <p className="text-gray-700 mb-4">
-//                   You are about to pay <span className="font-semibold">${selectedMedication.price}</span> for{" "}
-//                   <span className="font-semibold">{selectedMedication.name}</span>.
-//                 </p>
-//                 <p className="text-green-600 font-semibold">Phone: {phoneNumber}</p>
-//                 <p className="text-gray-600">Card: **** **** **** {cardNumber.slice(-4)}</p>
-//               </div>
-//             )}
-
-//             {/* Buttons */}
-//             <div className="mt-4 flex justify-between">
-//               <button
-//                 className="px-4 py-2 bg-gray-400 text-white rounded-lg"
-//                 onClick={() => setShowPaymentModal(false)}
-//               >
-//                 Cancel
-//               </button>
-//               {step < 3 ? (
-//                 <button
-//                   className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-//                   onClick={handleNextStep}
-//                 >
-//                   Next
-//                 </button>
-//               ) : (
-//                 <button
-//                   className="px-4 py-2 bg-green-500 text-white rounded-lg"
-//                   onClick={handleConfirmPayment}
-//                 >
-//                   Confirm Payment
-//                 </button>
-//               )}
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
 import { useState, useEffect } from "react";
-// import { getMedicines, updateMedicine, Medicine } from "../path/to/Api";
-import { getMedicines, updateMedicine, Medicine } from "../Api/medsalesApi"; 
+import { getMedicines, updateMedicine, Medicine } from "../Api/medsalesApi";
+import { createSale, Sale } from "../Api/salesApi";
+import { Toaster, toast } from "sonner";
 
 export default function Medications() {
   const [medications, setMedications] = useState<Medicine[]>([]);
+  const [filteredMedications, setFilteredMedications] = useState<Medicine[]>([]);
   const [selectedMedication, setSelectedMedication] = useState<Medicine | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [step, setStep] = useState(1);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    phoneNumber: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const medicationsPerPage = 5;
 
   useEffect(() => {
     const fetchMedicines = async () => {
       const data = await getMedicines();
       setMedications(data);
+      setFilteredMedications(data);
     };
     fetchMedicines();
   }, []);
 
+  useEffect(() => {
+    const filtered = medications.filter((med) =>
+      med.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMedications(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, medications]);
+
   const handlePurchase = (medication: Medicine) => {
     setSelectedMedication(medication);
-    setStep(1); // Start at step 1
+    setStep(1);
     setShowPaymentModal(true);
   };
 
   const handleNextStep = () => {
-    if (step === 1 && phoneNumber.length < 10) {
-      alert("Please enter a valid phone number.");
+    if (step === 1 && form.phoneNumber.length < 10) {
+      toast.error("Please enter a valid phone number.");
       return;
     }
-    if (step === 2 && (cardNumber.length < 16 || expiryDate.length < 5 || cvv.length < 3)) {
-      alert("Please enter valid card details.");
+    if (step === 2 && (form.cardNumber.length < 16 || form.expiryDate.length < 5 || form.cvv.length < 3)) {
+      toast.error("Please enter valid card details.");
       return;
     }
     setStep((prev) => prev + 1);
   };
 
-  const handleConfirmPayment = async () => {
-    if (selectedMedication) {
-      try {
-        const updatedMedication = {
-          ...selectedMedication,
-          quantity: selectedMedication.quantity - 1,
-        };
-        if (selectedMedication.id !== undefined) {
-          await updateMedicine(selectedMedication.id, updatedMedication);
-        }
-        setMedications((prev) =>
-          prev.map((med) =>
-            med.id === selectedMedication.id ? updatedMedication : med
-          )
-        );
-        alert("Payment Successful! 🎉");
-        setShowPaymentModal(false);
-        setSelectedMedication(null);
-      } catch (error) {
-        alert("Payment failed. Please try again.");
+  const handlePayment = async () => {
+    if (!selectedMedication) return;
+    setIsSubmitting(true);
+
+    try {
+      if (selectedMedication.id === undefined) {
+        throw new Error("Medication ID is undefined");
       }
+      await updateMedicine(selectedMedication.id, {
+        ...selectedMedication,
+        quantity: selectedMedication.quantity - 1,
+      });
+      const sale: Sale = {
+        medicine: selectedMedication.id,
+        quantity_sold: 1,
+        total_price: selectedMedication.price,
+        sale_date: new Date().toISOString(),
+      };
+      await createSale(sale);
+      toast.success("Purchase successful! Confirmation sent to your phone number.");
+      setTimeout(() => {
+        setShowPaymentModal(false);
+        setStep(1);
+        setForm({ phoneNumber: "", cardNumber: "", expiryDate: "", cvv: "" });
+      }, 1500);
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      toast.error("Payment failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const handleCancel = () => {
+    setShowPaymentModal(false);
+    setStep(1);
+    setForm({ phoneNumber: "", cardNumber: "", expiryDate: "", cvv: "" });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastMedication = currentPage * medicationsPerPage;
+  const indexOfFirstMedication = indexOfLastMedication - medicationsPerPage;
+  const currentMedications = filteredMedications.slice(indexOfFirstMedication, indexOfLastMedication);
+
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Available Medications</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {medications.map((med) => (
-          <div key={med.id} className="border p-4 rounded-lg shadow-md">
-            <h3 className="text-lg font-medium">{med.name}</h3>
-            <p className="text-gray-600">Category: {med.category}</p>
-            <p className="text-gray-800 font-semibold">Price: ${med.price}</p>
-            <p className="text-gray-500">Stock: {med.quantity}</p>
+    <>
+      <Toaster position="top-center" richColors />
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-4">Available Medications</h2>
+        <input
+  type="text"
+  placeholder="Search medications..."
+  value={searchTerm}
+  onChange={handleSearchChange}
+  className="w-64 p-2 mb-4 border rounded"
+/>
+
+        <ul>
+          {currentMedications.map((med) => (
+            <li key={med.id} className="p-2 border-b flex justify-between items-center">
+              <span>{med.name} - ${med.price} (Qty: {med.quantity})</span>
+              <button onClick={() => handlePurchase(med)} className="bg-blue-600 text-white px-4 py-2 rounded">
+                Buy
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="flex justify-center mt-4">
+          {Array.from({ length: Math.ceil(filteredMedications.length / medicationsPerPage) }, (_, index) => (
             <button
-              onClick={() => handlePurchase(med)}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1 ? "bg-blue-600 text-white" : "bg-white text-blue-600"}`}
             >
-              Purchase
+              {index + 1}
             </button>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {showPaymentModal && selectedMedication && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-2">Payment for {selectedMedication.name}</h3>
-            <p className="text-gray-800 font-semibold mb-4">Total: ${selectedMedication.price}</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-semibold mb-4">Purchase {selectedMedication.name}</h3>
+            <div className="flex items-center mb-4">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className={`h-2 flex-1 rounded-full ${step >= s ? "bg-blue-600" : "bg-gray-200"}`} />
+              ))}
+            </div>
 
-            {/* Step 1: Enter Phone Number */}
             {step === 1 && (
               <div>
-                <label className="block text-gray-700 font-medium">Phone Number</label>
-                <input
-                  type="text"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="border p-2 w-full rounded mt-1"
-                  placeholder="Enter phone number"
-                />
+                <label className="block mb-2">Phone Number</label>
+                <input type="tel" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} className="w-full p-2 border rounded" required />
               </div>
             )}
 
-            {/* Step 2: Enter Card Details */}
             {step === 2 && (
               <div>
-                <label className="block text-gray-700 font-medium">Card Number</label>
-                <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  className="border p-2 w-full rounded mt-1"
-                  placeholder="XXXX XXXX XXXX XXXX"
-                  maxLength={16}
-                />
-
+                <label className="block mb-2">Card Number</label>
+                <input type="text" value={form.cardNumber} onChange={(e) => setForm({ ...form, cardNumber: e.target.value })} className="w-full p-2 border rounded" maxLength={16} required />
                 <div className="flex space-x-4 mt-2">
-                  <div className="w-1/2">
-                    <label className="block text-gray-700 font-medium">Expiry Date</label>
-                    <input
-                      type="text"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      className="border p-2 w-full rounded mt-1"
-                      placeholder="MM/YY"
-                      maxLength={5}
-                    />
+                  <div>
+                    <label className="block mb-2">Expiry Date</label>
+                    <input type="text" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full p-2 border rounded" placeholder="MM/YY" required />
                   </div>
-                  <div className="w-1/2">
-                    <label className="block text-gray-700 font-medium">CVV</label>
-                    <input
-                      type="text"
-                      value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
-                      className="border p-2 w-full rounded mt-1"
-                      placeholder="CVV"
-                      maxLength={3}
-                    />
+                  <div>
+                    <label className="block mb-2">CVV</label>
+                    <input type="password" value={form.cvv} onChange={(e) => setForm({ ...form, cvv: e.target.value })} className="w-full p-2 border rounded" maxLength={3} required />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Step 3: Confirm Payment */}
             {step === 3 && (
-              <div className="text-center">
-                <p className="text-gray-700 mb-4">
-                  You are about to pay <span className="font-semibold">${selectedMedication.price}</span> for{" "}
-                  <span className="font-semibold">{selectedMedication.name}</span>.
-                </p>
-                <p className="text-green-600 font-semibold">Phone: {phoneNumber}</p>
-                <p className="text-gray-600">Card: **** **** **** {cardNumber.slice(-4)}</p>
+              <div>
+                <p>Total: ${selectedMedication.price}</p>
               </div>
             )}
 
-            {/* Buttons */}
-            <div className="mt-4 flex justify-between">
-              <button
-                className="px-4 py-2 bg-gray-400 text-white rounded-lg"
-                onClick={() => setShowPaymentModal(false)}
-              >
-                Cancel
-              </button>
-              {step < 3 ? (
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-                  onClick={handleNextStep}
-                >
-                  Next
-                </button>
-              ) : (
-                <button
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg"
-                  onClick={handleConfirmPayment}
-                >
-                  Confirm Payment
+            <div className="flex justify-end space-x-4 mt-6">
+              {step > 1 && (
+                <button onClick={() => setStep(step - 1)} className="px-6 py-2 border rounded text-gray-700">
+                  Back
                 </button>
               )}
+              <button onClick={step === 3 ? handlePayment : handleNextStep} className="px-6 py-2 bg-blue-600 text-white rounded" disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : step === 3 ? "Confirm Purchase" : "Continue"}
+              </button>
+              <button onClick={handleCancel} className="px-6 py-2 border rounded text-gray-700">
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
