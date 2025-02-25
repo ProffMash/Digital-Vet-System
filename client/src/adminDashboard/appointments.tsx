@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAppointments, deleteAppointment, Appointment } from '../Api/appointmentsApi'; // Adjust the import path as needed
+import { getAppointments, deleteAppointment, Appointment } from '../Api/appointmentsApi'; 
 import { Toaster, toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 
