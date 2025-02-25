@@ -11,6 +11,11 @@ from django.shortcuts import get_object_or_404
 class ContactViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+    
+    @action(detail=False, methods=['get'], url_path='count')
+    def get_contact_count(self, request):
+        count=Contact.objects.count()
+        return Response({"total_contacts":count})
 
 
 # Animal (Patient) ViewSet
@@ -29,6 +34,11 @@ class AnimalDiagnosisViewSet(viewsets.ModelViewSet):
 class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
+    
+    @action(detail=False, methods=['get'], url_path='count')
+    def get_appointment_count(self, request):
+        count=Appointment.objects.count()
+        return Response({"total_appointments":count})
 
 
 class MedicineViewSet(viewsets.ModelViewSet):
@@ -47,14 +57,7 @@ class MedicineViewSet(viewsets.ModelViewSet):
         low_stock_medicines = Medicine.objects.filter(quantity__lt=5)
         serializer = self.get_serializer(low_stock_medicines, many=True)
         return Response(serializer.data)
-
-    @action(detail=False, methods=['get'], url_path='total-stock-value')
-    def get_total_stock_value(self, request):
-        """Calculate the total stock value of all medicines."""
-        total_value = sum(med.stock_value() for med in Medicine.objects.all())
-        return Response({"total_stock_value": total_value})
-
-
+    
 
 class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
@@ -81,3 +84,14 @@ class SaleViewSet(viewsets.ModelViewSet):
             return super().create(request, *args, **kwargs)
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=False, methods=['get'], url_path='count')
+    def get_sale_count(self, request):
+        count = Sale.objects.count()
+        return Response({"total_sales": count})
+    
+    @action(detail=False, methods=['get'], url_path='total-revenue')
+    def get_total_revenue(self, request):
+        """Calculate the total revenue of all sales."""
+        total_revenue = Sale.objects.aggregate(total_revenue=Sum('total_price'))['total_revenue'] or 0
+        return Response({"total_revenue": total_revenue})

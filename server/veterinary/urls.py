@@ -15,3 +15,10 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('', include(router.urls)),  # Include router URLs for browsable API
 ]
+
+#count urls:
+
+# http://127.0.0.1:8000/api/sales/total-revenue/
+# http://127.0.0.1:8000/api/medicine/count/
+# http://127.0.0.1:8000/api/appointments/count/
+# http://127.0.0.1:8000/api/contacts/count/

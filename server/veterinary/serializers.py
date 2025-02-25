@@ -51,3 +51,7 @@ class SaleSerializer(serializers.ModelSerializer):
 
     def get_medicine_name(self, obj):
         return obj.medicine.name
+    
+
+class CountSerializer(serializers.Serializer):
+    count = serializers.IntegerField()

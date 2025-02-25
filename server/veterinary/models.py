@@ -81,6 +81,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
 from .serializers import SaleSerializer
+from django.http import JsonResponse
 
 @api_view(['POST'])
 def create_sale(request):
@@ -130,3 +131,20 @@ def create_sale(request):
 
     def __str__(self):
         return f"Sale of {self.quantity_sold} {self.medicine.name} on {self.sale_date}"
+
+
+def get_total_revenue(request):
+    total_revenue = Sale.objects.aggregate(sum('price'))['total_price__sum'] or 0
+    return JsonResponse({'total_revenue': total_revenue})
+
+def get_medicine_count():
+    count=Medicine.objects.count()
+    return Response({"total_medicines": count})
+
+def get_appointment_count():
+    count=Appointment.objects.count()
+    return Response({"total_appointments": count})
+
+def get_contact_count():
+    count=Contact.objects.count()
+    return Response({"total_contacts": count})
