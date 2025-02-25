@@ -1,202 +1,122 @@
-import React, { useState } from 'react';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Search, Trash2 } from "lucide-react";
+import { getSales, deleteSale, Sale } from "../Api/salesApi";
+import { Toaster, toast } from 'sonner';
 
-interface Service {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  duration: string;
-  status: string;
-}
+const AdminPayments: React.FC = () => {
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const salesPerPage = 8;
 
-export default function ServicesManagement() {
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: 1,
-      name: "Wellness Examination",
-      price: 75.00,
-      description: "Comprehensive health check-up including vital signs, physical examination, and preventive care recommendations.",
-      duration: "30 minutes",
-      status: "Available"
-    },
-    {
-      id: 2,
-      name: "Vaccination",
-      price: 45.00,
-      description: "Essential immunizations to protect your pet from common diseases.",
-      duration: "15 minutes",
-      status: "Available"
-    },
-    {
-      id: 3,
-      name: "Surgery",
-      price: 350.00,
-      description: "Professional surgical procedures including spaying/neutering and other operations.",
-      duration: "1-2 hours",
-      status: "Available"
-    }
-  ]);
+  useEffect(() => {
+    fetchSales();
+  }, []);
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newService, setNewService] = useState({
-    name: '',
-    price: 0,
-    description: '',
-    duration: '',
-    status: 'Available'
-  });
-
-  const handleAddService = (e: React.FormEvent) => {
-    e.preventDefault();
-    setServices([
-      ...services,
-      {
-        id: services.length + 1,
-        ...newService
-      }
-    ]);
-    setShowAddModal(false);
-    setNewService({
-      name: '',
-      price: 0,
-      description: '',
-      duration: '',
-      status: 'Available'
-    });
-  };
-
-  const handleDeleteService = (id: number) => {
-    if (confirm('Are you sure you want to delete this service?')) {
-      setServices(services.filter(service => service.id !== id));
+  const fetchSales = async () => {
+    try {
+      const data = await getSales();
+      setSales(data);
+    } catch (error) {
+      console.error("Error fetching sales:", error);
     }
   };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteSale(id);
+      setSales(sales.filter((sale) => sale.id !== id));
+      toast.success('Sale deleted successfully');
+    } catch (error) {
+      console.error("Error deleting sale:", error);
+      toast.error('Failed to delete sale');
+    }
+  };
+
+  // Pagination Logic
+  const indexOfLastSale = currentPage * salesPerPage;
+  const indexOfFirstSale = indexOfLastSale - salesPerPage;
+  const filteredSales = sales.filter((sale) =>
+    sale.medicine.toString().includes(searchQuery.toLowerCase()) ||
+    sale.medicine_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const currentSales = filteredSales.slice(
+    indexOfFirstSale,
+    indexOfLastSale
+  );
+  const totalPages = Math.ceil(filteredSales.length / salesPerPage);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Service Management</h2>
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <Toaster position="top-center" richColors />
+      <h2 className="text-2xl font-bold text-gray-800">Payments</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <div className="relative w-full sm:w-1/2">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <input
+            type="text"
+            placeholder="Search by Medicine ID or Name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600"
+          />
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="text-left text-sm text-gray-600 border-b border-gray-100">
+              <th className="px-4 py-2">Medicine ID</th>
+              <th className="px-4 py-2">Medicine Name</th>
+              <th className="px-4 py-2">Quantity Sold</th>
+              <th className="px-4 py-2">Total Price</th>
+              <th className="px-4 py-2">Sale Date</th>
+              <th className="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentSales.map((sale) => (
+              <tr key={sale.id} className="border-b border-gray-100">
+                <td className="px-4 py-2">{sale.medicine}</td>
+                <td className="px-4 py-2">{sale.medicine_name}</td>
+                <td className="px-4 py-2">{sale.quantity_sold}</td>
+                <td className="px-4 py-2">${sale.total_price}</td>
+                <td className="px-4 py-2">{new Date(sale.sale_date).toLocaleString()}</td>
+                <td className="px-4 py-2 flex gap-2">
+                  <button
+                    onClick={() => sale.id !== undefined && handleDelete(sale.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
         <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
-          <Plus className="w-5 h-5" />
-          <span>Add Service</span>
+          Previous
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+        >
+          Next
         </button>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((service) => (
-          <div key={service.id} className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">{service.name}</h3>
-              <div className="flex space-x-2">
-                <button className="text-blue-600 hover:text-blue-800">
-                  <Pencil className="w-5 h-5" />
-                </button>
-                <button
-                  className="text-red-600 hover:text-red-800"
-                  onClick={() => handleDeleteService(service.id)}
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            <p className="text-gray-600 mb-4">{service.description}</p>
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <span>Duration: {service.duration}</span>
-              <span className="font-semibold text-blue-600">${service.price}</span>
-            </div>
-            <div className="mt-4">
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                service.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {service.status}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Add Service Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Add New Service</h3>
-            <form onSubmit={handleAddService} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
-                <input
-                  type="text"
-                  value={newService.name}
-                  onChange={(e) => setNewService({ ...newService, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                <input
-                  type="number"
-                  value={newService.price}
-                  onChange={(e) => setNewService({ ...newService, price: parseFloat(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  required
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={newService.description}
-                  onChange={(e) => setNewService({ ...newService, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  required
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                <input
-                  type="text"
-                  value={newService.duration}
-                  onChange={(e) => setNewService({ ...newService, duration: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  required
-                  placeholder="e.g., 30 minutes"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  value={newService.status}
-                  onChange={(e) => setNewService({ ...newService, status: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="Available">Available</option>
-                  <option value="Unavailable">Unavailable</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Add Service
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
-}
+};
+
+export default AdminPayments;

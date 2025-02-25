@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import { getMedicines, createMedicine, updateMedicine, deleteMedicine, Medicine } from '../Api/medsalesApi'; // Adjust the import path as needed
+import { Toaster, toast } from 'sonner';
 
 export default function MedicationsManagement() {
   const [medications, setMedications] = useState<Medicine[]>([]);
@@ -50,8 +51,10 @@ export default function MedicationsManagement() {
         quantity: 0,
         expiry_date: '',
       });
+      toast.success('Medication added successfully');
     } catch (error) {
       console.error('Error adding medication:', error);
+      toast.error('Failed to add medication');
     }
   };
 
@@ -63,8 +66,10 @@ export default function MedicationsManagement() {
       setMedications(medications.map(med => (med.id === updatedMedication.id ? updatedMedication : med)));
       setShowEditModal(false);
       setEditMedication(null);
+      toast.success('Medication updated successfully');
     } catch (error) {
       console.error('Error updating medication:', error);
+      toast.error('Failed to update medication');
     }
   };
 
@@ -73,8 +78,10 @@ export default function MedicationsManagement() {
       try {
         await deleteMedicine(id);
         setMedications(medications.filter(med => med.id !== id));
+        toast.success('Medication deleted successfully');
       } catch (error) {
         console.error('Error deleting medication:', error);
+        toast.error('Failed to delete medication');
       }
     }
   };
@@ -93,6 +100,7 @@ export default function MedicationsManagement() {
 
   return (
     <div className="space-y-6">
+      <Toaster position="top-center" richColors />
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Medication Management</h2>
         <button

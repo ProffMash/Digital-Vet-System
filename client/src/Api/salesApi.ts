@@ -4,6 +4,7 @@ import { getMedicines } from "./medsalesApi";
 const BASE_URL = "http://127.0.0.1:8000/api/sales/";
 
 export interface Sale {
+  medicine_name: any;
   id?: number;
   medicine: number;
   quantity_sold: number;

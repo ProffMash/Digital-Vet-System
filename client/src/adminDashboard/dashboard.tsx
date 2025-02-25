@@ -1,15 +1,17 @@
-import { useState } from 'react';
-import {Users,Stethoscope,Pill,MessageSquare,LogOut,Menu,X,Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, CreditCard, Pill, MessageSquare, LogOut, Menu, X, Activity, User, Calendar, DollarSign, LifeBuoy, Package } from 'lucide-react';
 import UsersManagement from './users';
 import ServicesManagement from './services';
 import MedicationsManagement from './medications';
 import SupportTickets from './support';
+import { getTotalSales, getTotalMedicines, getTotalAppointments, getTotalContacts, getTotalRevenue } from '../Api/countApi'; 
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type ActiveSection = 'users' | 'services' | 'medications' | 'support' | 'overview';
+type ActiveSection = 'users' | 'payments' | 'medications' | 'support' | 'overview';
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -19,7 +21,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     switch (activeSection) {
       case 'users':
         return <UsersManagement />;
-      case 'services':
+      case 'payments':
         return <ServicesManagement />;
       case 'medications':
         return <MedicationsManagement />;
@@ -85,15 +87,15 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <span>Users</span>
             </button>
             <button
-              onClick={() => setActiveSection('services')}
+              onClick={() => setActiveSection('payments')}
               className={`flex items-center space-x-3 w-full p-2 rounded-lg transition-colors duration-200 ${
-                isActive('services')
+                isActive('payments')
                   ? 'bg-blue-50 text-blue-600'
                   : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
               }`}
             >
-              <Stethoscope className="w-5 h-5" />
-              <span>Services</span>
+              <CreditCard className="w-5 h-5" />
+              <span>Payments</span>
             </button>
             <button
               onClick={() => setActiveSection('medications')}
@@ -139,29 +141,96 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 }
 
 function Overview() {
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalAppointments, setTotalAppointments] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalSupportTickets, setTotalSupportTickets] = useState(0);
+  const [totalMedicines, setTotalMedicines] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const users = await getTotalContacts();
+      const appointments = await getTotalAppointments();
+      const revenue = await getTotalRevenue();
+      const supportTickets = await getTotalSales(); // Assuming support tickets are counted as sales
+      const medicines = await getTotalMedicines();
+
+      setTotalUsers(users);
+      setTotalAppointments(appointments);
+      setTotalRevenue(revenue);
+      setTotalSupportTickets(supportTickets);
+      setTotalMedicines(medicines);
+    };
+
+    fetchData();
+  }, []);
+
   const stats = [
-    { title: 'Total Users', value: '1,234', change: '+12%' },
-    { title: 'Active Appointments', value: '156', change: '+8%' },
-    { title: 'Revenue', value: '$45,289', change: '+23%' },
-    { title: 'Support Tickets', value: '48', change: '-5%' }
+    { title: 'Total Users', value: totalUsers, change: '+12%', icon: <User className="w-5 h-5 text-gray-400" /> },
+    { title: 'Active Appointments', value: totalAppointments, change: '+8%', icon: <Calendar className="w-5 h-5 text-gray-400" /> },
+    { title: 'Revenue', value: `$${totalRevenue}`, change: '+23%', icon: <DollarSign className="w-5 h-5 text-gray-400" /> },
+    { title: 'Support Tickets', value: totalSupportTickets, change: '-5%', icon: <LifeBuoy className="w-5 h-5 text-gray-400" /> },
+    { title: 'Total Medicines', value: totalMedicines, change: '+10%', icon: <Package className="w-5 h-5 text-gray-400" /> }
+  ];
+
+  const data = [
+    { name: 'Users', value: totalUsers },
+    { name: 'Appointments', value: totalAppointments },
+    { name: 'Support Tickets', value: totalSupportTickets },
+    { name: 'Medicines', value: totalMedicines }
   ];
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Dashboard Overview</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold text-gray-600">{stat.title}</h3>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
-            <p className={`text-sm mt-2 ${
-              stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {stat.change} from last month
-            </p>
+          <div key={index} className="bg-white p-4 rounded-lg shadow-md flex items-center">
+            <div className="mr-2">
+              {stat.icon}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-600">{stat.title}</h3>
+              <p className="text-xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <p className={`text-xs mt-1 ${
+                stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {stat.change} from last month
+              </p>
+            </div>
           </div>
         ))}
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Analytics</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   );
