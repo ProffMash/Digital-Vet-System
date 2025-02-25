@@ -6,6 +6,9 @@ import { Trash2 } from 'lucide-react';
 const AppointmentsManagement: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const appointmentsPerPage = 5;
 
   useEffect(() => {
     fetchAppointments();
@@ -33,11 +36,38 @@ const AppointmentsManagement: React.FC = () => {
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const filteredAppointments = appointments.filter((appointment) =>
+    appointment.owner_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    appointment.owner_contact.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastAppointment = currentPage * appointmentsPerPage;
+  const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
+  const currentAppointments = filteredAppointments.slice(indexOfFirstAppointment, indexOfLastAppointment);
+  const totalPages = Math.ceil(filteredAppointments.length / appointmentsPerPage);
+
   return (
     <div className="space-y-6">
       <Toaster position="top-center" richColors />
       <h2 className="text-2xl font-bold text-gray-900">Appointments Management</h2>
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-4">
+          <input
+            type="text"
+            placeholder="Search appointments..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+          />
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -56,8 +86,8 @@ const AppointmentsManagement: React.FC = () => {
                     Loading...
                   </td>
                 </tr>
-              ) : appointments.length > 0 ? (
-                appointments.map((appointment) => (
+              ) : currentAppointments.length > 0 ? (
+                currentAppointments.map((appointment) => (
                   <tr key={appointment.id}>
                     <td className="px-6 py-4 whitespace-nowrap">{appointment.owner_name}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{appointment.owner_contact}</td>
@@ -83,6 +113,17 @@ const AppointmentsManagement: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1 ? "bg-blue-600 text-white" : "bg-white text-blue-600"}`}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
     </div>
   );
