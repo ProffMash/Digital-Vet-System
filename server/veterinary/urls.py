@@ -5,7 +5,7 @@ from .views import ContactViewSet, AnimalViewSet, AnimalDiagnosisViewSet, Appoin
 # router and register viewsets
 router = DefaultRouter()
 router.register(r'contacts', ContactViewSet)
-router.register(r'animals', AnimalViewSet)
+router.register(r'patients', AnimalViewSet)
 router.register(r'animal-diagnoses', AnimalDiagnosisViewSet)
 router.register(r'appointments', AppointmentViewSet)
 router.register(r'medicine', MedicineViewSet)

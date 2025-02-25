@@ -15,15 +15,19 @@ class Contact(models.Model):
 
 # Animal (Patient) Model
 class Animal(models.Model):
+    STATUS_CHOICES = [
+        ("admitted", "Admitted"),
+        ("discharged", "Discharged"),
+    ]
+    
     animal_id = models.AutoField(primary_key=True)
     owner_name = models.CharField(max_length=100)
     owner_contact = models.CharField(max_length=15)
     species = models.CharField(max_length=50)  # e.g., Dog, Cat, Horse
-    breed = models.CharField(max_length=50, blank=True, null=True)
-    status = models.CharField(max_length=50)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="admitted")
 
     def __str__(self):
-        return f"{self.name} ({self.species})"
+        return f"{self.species} ({self.status})"
 
 
 # Animal Diagnosis Model
