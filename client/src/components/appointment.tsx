@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { createAppointment, Appointment } from '../Api/appointmentsApi'; // Adjust the import path as needed
+import { createAppointment, Appointment } from '../Api/appointmentsApi'; 
 
 interface AppointmentModalProps {
   isOpen: boolean;
