@@ -4,6 +4,7 @@ import UsersManagement from './users';
 import ServicesManagement from './services';
 import MedicationsManagement from './medications';
 import SupportTickets from './support';
+import AppointmentsManagement from './appointments';
 import { getTotalSales, getTotalMedicines, getTotalAppointments, getTotalContacts, getTotalRevenue } from '../Api/countApi'; 
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -11,7 +12,7 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type ActiveSection = 'users' | 'payments' | 'medications' | 'support' | 'overview';
+type ActiveSection = 'users' | 'payments' | 'medications' | 'support' | 'overview' | 'appointments';
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -29,6 +30,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         return <SupportTickets />;
       case 'overview':
         return <Overview />;
+      case 'appointments':
+        return <AppointmentsManagement />;
       default:
         return <Overview />;
     }
@@ -107,6 +110,17 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             >
               <Pill className="w-5 h-5" />
               <span>Medications</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('appointments')}
+              className={`flex items-center space-x-3 w-full p-2 rounded-lg transition-colors duration-200 ${
+                isActive('appointments')
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+            >
+              <Calendar className="w-5 h-5" />
+              <span>Appointments</span>
             </button>
             <button
               onClick={() => setActiveSection('support')}
