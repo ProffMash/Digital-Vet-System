@@ -22,6 +22,11 @@ class ContactViewSet(viewsets.ModelViewSet):
 class AnimalViewSet(viewsets.ModelViewSet):
     queryset = Animal.objects.all()
     serializer_class = AnimalSerializer
+    
+    @action(detail=False, methods=['get'], url_path='count')
+    def get_animal_count(self, request):
+        count=Animal.objects.count()
+        return Response({"total_patients":count})
 
 
 # Animal Diagnosis ViewSet

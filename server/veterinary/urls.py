@@ -18,7 +18,8 @@ urlpatterns = [
 
 #count urls:
 
-# http://127.0.0.1:8000/api/sales/total-revenue/
+# http://127.0.0.1:8000/api/sales/total-revenue/ 2540111745757
 # http://127.0.0.1:8000/api/medicine/count/
 # http://127.0.0.1:8000/api/appointments/count/
 # http://127.0.0.1:8000/api/contacts/count/
+# http://127.0.0.1:8000/api/patients/count/

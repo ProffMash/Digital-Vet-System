@@ -152,3 +152,7 @@ def get_appointment_count():
 def get_contact_count():
     count=Contact.objects.count()
     return Response({"total_contacts": count})
+
+def get_patient_count():
+    count=Animal.objects.count()
+    return Response({"total_patients": count})
