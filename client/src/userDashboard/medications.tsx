@@ -145,23 +145,23 @@ export default function Medications() {
 
       {showPaymentModal && selectedMedication && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg animate-fade-in">
             <h3 className="text-xl font-semibold mb-4">Purchase {selectedMedication.name}</h3>
             <div className="flex items-center mb-4">
               {[1, 2, 3].map((s) => (
-                <div key={s} className={`h-2 flex-1 rounded-full ${step >= s ? "bg-blue-600" : "bg-gray-200"}`} />
+                <div key={s} className={`h-2 flex-1 rounded-full transition-colors duration-300 ${step >= s ? "bg-blue-600" : "bg-gray-200"}`} />
               ))}
             </div>
 
             {step === 1 && (
-              <div>
+              <div className="animate-slide-in">
                 <label className="block mb-2">Phone Number</label>
                 <input type="tel" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" required />
               </div>
             )}
 
             {step === 2 && (
-              <div>
+              <div className="animate-slide-in">
                 <label className="block mb-2">Card Number</label>
                 <input type="text" value={form.cardNumber} onChange={(e) => setForm({ ...form, cardNumber: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" maxLength={16} required />
                 <div className="flex space-x-4 mt-2">
@@ -178,7 +178,7 @@ export default function Medications() {
             )}
 
             {step === 3 && (
-              <div>
+              <div className="animate-slide-in">
                 <p className="text-lg font-semibold">Total: ${selectedMedication.price}</p>
               </div>
             )}
