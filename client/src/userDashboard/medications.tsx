@@ -18,6 +18,7 @@ export default function Medications() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showTooltip, setShowTooltip] = useState(true);
   const medicationsPerPage = 5;
 
   useEffect(() => {
@@ -36,6 +37,16 @@ export default function Medications() {
     setFilteredMedications(filtered);
     setCurrentPage(1);
   }, [searchTerm, medications]);
+
+  useEffect(() => {
+    if (showPaymentModal) {
+      setShowTooltip(true);
+      const timer = setTimeout(() => {
+        setShowTooltip(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPaymentModal, step]);
 
   const handlePurchase = (medication: Medicine) => {
     setSelectedMedication(medication);
@@ -145,7 +156,7 @@ export default function Medications() {
 
       {showPaymentModal && selectedMedication && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg animate-fade-in">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg animate-fade-in relative">
             <h3 className="text-xl font-semibold mb-4">Purchase {selectedMedication.name}</h3>
             <div className="flex items-center mb-4">
               {[1, 2, 3].map((s) => (
@@ -154,14 +165,19 @@ export default function Medications() {
             </div>
 
             {step === 1 && (
-              <div className="animate-slide-in">
+              <div className="animate-slide-in relative">
                 <label className="block mb-2">Phone Number</label>
                 <input type="tel" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" required />
+                {showTooltip && (
+                  <div className="absolute top-0 left-0 mt-2 ml-2 bg-blue-100 p-2 rounded shadow-lg">
+                    <p className="text-sm text-blue-800">Please enter your phone number to receive a confirmation message.</p>
+                  </div>
+                )}
               </div>
             )}
 
             {step === 2 && (
-              <div className="animate-slide-in">
+              <div className="animate-slide-in relative">
                 <label className="block mb-2">Card Number</label>
                 <input type="text" value={form.cardNumber} onChange={(e) => setForm({ ...form, cardNumber: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" maxLength={16} required />
                 <div className="flex space-x-4 mt-2">
@@ -174,12 +190,22 @@ export default function Medications() {
                     <input type="password" value={form.cvv} onChange={(e) => setForm({ ...form, cvv: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" maxLength={3} required />
                   </div>
                 </div>
+                {showTooltip && (
+                  <div className="absolute top-0 left-0 mt-2 ml-2 bg-blue-100 p-2 rounded shadow-lg">
+                    <p className="text-sm text-blue-800">Please enter your card details to proceed with the payment.</p>
+                  </div>
+                )}
               </div>
             )}
 
             {step === 3 && (
-              <div className="animate-slide-in">
+              <div className="animate-slide-in relative">
                 <p className="text-lg font-semibold">Total: ${selectedMedication.price}</p>
+                {showTooltip && (
+                  <div className="absolute top-0 left-0 mt-2 ml-2 bg-blue-100 p-2 rounded shadow-lg">
+                    <p className="text-sm text-blue-800">Review your order and confirm the purchase.</p>
+                  </div>
+                )}
               </div>
             )}
 
