@@ -113,12 +113,12 @@ export default function Medications() {
       <div className="p-4">
         <h2 className="text-2xl font-semibold mb-4">Available Medications</h2>
         <input
-  type="text"
-  placeholder="Search medications..."
-  value={searchTerm}
-  onChange={handleSearchChange}
-  className="w-64 p-2 mb-4 border rounded"
-/>
+          type="text"
+          placeholder="Search medications..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-64 p-2 mb-4 border rounded"
+        />
 
         <ul>
           {currentMedications.map((med) => (
@@ -145,7 +145,7 @@ export default function Medications() {
 
       {showPaymentModal && selectedMedication && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
             <h3 className="text-xl font-semibold mb-4">Purchase {selectedMedication.name}</h3>
             <div className="flex items-center mb-4">
               {[1, 2, 3].map((s) => (
@@ -156,22 +156,22 @@ export default function Medications() {
             {step === 1 && (
               <div>
                 <label className="block mb-2">Phone Number</label>
-                <input type="tel" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} className="w-full p-2 border rounded" required />
+                <input type="tel" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" required />
               </div>
             )}
 
             {step === 2 && (
               <div>
                 <label className="block mb-2">Card Number</label>
-                <input type="text" value={form.cardNumber} onChange={(e) => setForm({ ...form, cardNumber: e.target.value })} className="w-full p-2 border rounded" maxLength={16} required />
+                <input type="text" value={form.cardNumber} onChange={(e) => setForm({ ...form, cardNumber: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" maxLength={16} required />
                 <div className="flex space-x-4 mt-2">
                   <div>
                     <label className="block mb-2">Expiry Date</label>
-                    <input type="text" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full p-2 border rounded" placeholder="MM/YY" required />
+                    <input type="text" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" placeholder="MM/YY" required />
                   </div>
                   <div>
                     <label className="block mb-2">CVV</label>
-                    <input type="password" value={form.cvv} onChange={(e) => setForm({ ...form, cvv: e.target.value })} className="w-full p-2 border rounded" maxLength={3} required />
+                    <input type="password" value={form.cvv} onChange={(e) => setForm({ ...form, cvv: e.target.value })} className="w-full p-2 border rounded focus:ring focus:ring-blue-200" maxLength={3} required />
                   </div>
                 </div>
               </div>
@@ -179,7 +179,7 @@ export default function Medications() {
 
             {step === 3 && (
               <div>
-                <p>Total: ${selectedMedication.price}</p>
+                <p className="text-lg font-semibold">Total: ${selectedMedication.price}</p>
               </div>
             )}
 
