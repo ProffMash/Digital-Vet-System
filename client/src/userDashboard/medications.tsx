@@ -68,6 +68,7 @@ export default function Medications() {
         quantity: selectedMedication.quantity - 1,
       });
       const sale: Sale = {
+        medicine_name: selectedMedication.name,
         medicine: selectedMedication.id,
         quantity_sold: 1,
         total_price: selectedMedication.price,
