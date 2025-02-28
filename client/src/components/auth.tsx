@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
+import { registerUser, loginUser } from "../Api/authApi";
 
 interface AuthProps {
   onLogin: (isAdmin: boolean) => void;
@@ -9,7 +10,7 @@ interface AuthProps {
 export default function Auth({ onLogin }: AuthProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [isModalOpen, setIsModalOpen] = useState(location.pathname === "/auth");
   const [isRegister, setIsRegister] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,6 +19,7 @@ export default function Auth({ onLogin }: AuthProps) {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState<string | null>(null); // For error handling
 
   useEffect(() => {
     if (location.pathname === "/auth") {
@@ -27,18 +29,50 @@ export default function Auth({ onLogin }: AuthProps) {
     }
   }, [location]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate passwords match for registration
     if (isRegister && formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
 
-    onLogin(isAdmin);
-    setIsModalOpen(false);
-    
-    // Redirect based on user role
-    navigate(isAdmin ? "/admin-dashboard" : "/user-dashboard");
+    try {
+      let response;
+      if (isRegister) {
+        // Call the register API
+        response = await registerUser({
+          full_name: "User", // You can modify this to allow users to input their name
+          email: formData.email,
+          password: formData.password,
+        });
+      } else {
+        // Call the login API
+        response = await loginUser({
+          email: formData.email,
+          password: formData.password,
+        });
+      }
+
+      // Save the token to localStorage (or context/state)
+      localStorage.setItem("token", response.token);
+
+      // Determine if the user is an admin based on their email
+      const isAdminUser = formData.email.toLowerCase().includes("admin");
+
+      // Notify the parent component (App.tsx) about the login
+      onLogin(isAdminUser);
+
+      // Close the modal
+      setIsModalOpen(false);
+
+      // Redirect based on user role
+      navigate(isAdminUser ? "/admin-dashboard" : "/user-dashboard");
+    } catch (error) {
+      console.error("Authentication failed:", error);
+      setError("Authentication failed. Please check your credentials.");
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +106,12 @@ export default function Auth({ onLogin }: AuthProps) {
             <X className="w-6 h-6" />
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 text-red-600 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
