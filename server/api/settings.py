@@ -26,6 +26,10 @@ SECRET_KEY = "django-insecure-f-n03o7iy)%9azzcge)_x9x%!64=-mi-s^(nena8l*l(58wyv6
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Allow frontend to access API
+    # "https://carparkingsystem.vercel.app",  
+]
 
 
 # Application definition

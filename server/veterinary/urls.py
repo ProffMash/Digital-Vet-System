@@ -1,10 +1,6 @@
 from django.urls import path, include
-from .views import UserRegistrationView, UserLoginView, ContactViewSet, AnimalViewSet, AnimalDiagnosisViewSet, AppointmentViewSet, MedicineViewSet, SaleViewSet
 from rest_framework.routers import DefaultRouter
-
-urlpatterns = [
-   
-]
+from .views import UserRegistrationView, UserLoginView, ContactViewSet, AnimalViewSet, AnimalDiagnosisViewSet, AppointmentViewSet, MedicineViewSet, SaleViewSet
 
 # router and register viewsets
 router = DefaultRouter()
@@ -15,11 +11,11 @@ router.register(r'appointments', AppointmentViewSet)
 router.register(r'medicine', MedicineViewSet)
 router.register(r'sales', SaleViewSet)
 # URL patterns
-# URL patterns
 urlpatterns = [
     path('api/', include(router.urls)),
     path('register/', UserRegistrationView.as_view(), name='user-register'),
     path('login/', UserLoginView.as_view(), name='user-login'),
+    path('', include(router.urls)),  # Include router URLs for browsable API
 ]
 
 #count urls:
