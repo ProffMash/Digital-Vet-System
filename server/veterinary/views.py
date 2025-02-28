@@ -5,8 +5,8 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import login
 
 from django.db.models import Sum
-from .models import Contact, Animal, AnimalDiagnosis, Appointment, Medicine, Sale
-from .serializers import ContactSerializer, AnimalSerializer, AnimalDiagnosisSerializer, AppointmentSerializer, MedicineSerializer, SaleSerializer, UserRegistrationSerializer, UserLoginSerializer
+from .models import Contact, Animal, AnimalDiagnosis, Appointment, Medicine, Sale, CustomUser
+from .serializers import ContactSerializer, AnimalSerializer, AnimalDiagnosisSerializer, AppointmentSerializer, MedicineSerializer, SaleSerializer, UserRegistrationSerializer, UserLoginSerializer, UserSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -125,3 +125,8 @@ class SaleViewSet(viewsets.ModelViewSet):
         """Calculate the total revenue of all sales."""
         total_revenue = Sale.objects.aggregate(total_revenue=Sum('total_price'))['total_revenue'] or 0
         return Response({"total_revenue": total_revenue})
+    
+#Custom user view
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer

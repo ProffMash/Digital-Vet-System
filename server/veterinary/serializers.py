@@ -98,3 +98,9 @@ class SaleSerializer(serializers.ModelSerializer):
 
 class CountSerializer(serializers.Serializer):
     count = serializers.IntegerField()
+    
+#custim user serializer
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser  # Change this from User to CustomUser
+        fields = ['id', 'full_name', 'email']
