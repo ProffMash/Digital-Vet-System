@@ -196,3 +196,8 @@ def get_contact_count():
 def get_patient_count():
     count=Animal.objects.count()
     return Response({"total_patients": count})
+
+def get_user_count():
+    count=CustomUser.objects.count()
+    return Response({"total_users": count})
+    

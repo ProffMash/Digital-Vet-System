@@ -130,3 +130,8 @@ class SaleViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+    
+    @action(detail=False, methods=['get'], url_path='count')
+    def get_user_count(self, request):
+        count=CustomUser.objects.count()
+        return Response({"total_users":count})
