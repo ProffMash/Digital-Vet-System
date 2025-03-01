@@ -6,7 +6,7 @@ import MedicationsManagement from './medications';
 import SupportTickets from './support';
 import AppointmentsManagement from './appointments';
 import PatientsManagement from './patients';
-import { getTotalSales, getTotalMedicines, getTotalAppointments, getTotalRevenue, getTotalPatients, getUserCount } from '../Api/countApi'; 
+import { getTotalMedicines, getTotalAppointments, getTotalRevenue, getTotalPatients, getUserCount,getTotalContacts  } from '../Api/countApi';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface AdminDashboardProps {
@@ -93,11 +93,11 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <span>Users</span>
             </button>
             <button
-             onClick={() => setActiveSection('patients')}
-             className={`flex items-center space-x-3 w-full p-2 rounded-lg transition-colors duration-200 ${  
-              isActive('patients')
-              ? 'bg-blue-50 text-blue-600'
-              : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+              onClick={() => setActiveSection('patients')}
+              className={`flex items-center space-x-3 w-full p-2 rounded-lg transition-colors duration-200 ${
+                isActive('patients')
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
               }`}
             >
               <HeartPulse className="w-5 h-5" />
@@ -174,23 +174,23 @@ function Overview() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalSupportTickets, setTotalSupportTickets] = useState(0);
   const [totalMedicines, setTotalMedicines] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0); // New state for user count
+  const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       const patients = await getTotalPatients();
       const appointments = await getTotalAppointments();
       const revenue = await getTotalRevenue();
-      const supportTickets = await getTotalSales(); // Assuming support tickets are counted as sales
+      const supportTickets = await getTotalContacts(); // Fetch support tickets
       const medicines = await getTotalMedicines();
-      const users = await getUserCount(); // Fetch user count
+      const users = await getUserCount();
 
       setTotalPatients(patients);
       setTotalAppointments(appointments);
       setTotalRevenue(revenue);
       setTotalSupportTickets(supportTickets);
       setTotalMedicines(medicines);
-      setTotalUsers(users); // Set user count
+      setTotalUsers(users);
     };
 
     fetchData();
@@ -202,7 +202,7 @@ function Overview() {
     { title: 'Revenue', value: `$${totalRevenue}`, change: '+23%', icon: <DollarSign className="w-5 h-5 text-gray-400" /> },
     { title: 'Support Tickets', value: totalSupportTickets, change: '-5%', icon: <LifeBuoy className="w-5 h-5 text-gray-400" /> },
     { title: 'Total Medicines', value: totalMedicines, change: '+10%', icon: <Package className="w-5 h-5 text-gray-400" /> },
-    { title: 'Total Users', value: totalUsers, change: '+15%', icon: <Users className="w-5 h-5 text-gray-400" /> } // Added user count
+    { title: 'Total Users', value: totalUsers, change: '+15%', icon: <Users className="w-5 h-5 text-gray-400" /> }
   ];
 
   const data = [
@@ -210,7 +210,8 @@ function Overview() {
     { name: 'Appointments', value: totalAppointments },
     { name: 'Support Tickets', value: totalSupportTickets },
     { name: 'Medicines', value: totalMedicines },
-    { name: 'Users', value: totalUsers } // Added user count to chart data
+    { name: 'Users', value: totalUsers }
+    // {name: 'Revenue', value: totalRevenue}
   ];
 
   return (
