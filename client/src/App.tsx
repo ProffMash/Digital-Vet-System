@@ -6,12 +6,13 @@ import AdminDashboard from "./adminDashboard/dashboard";
 import Auth from "./components/auth";
 
 function App() {
+  // Retrieve auth state from localStorage
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem("isAuthenticated") === "true";
+    return JSON.parse(localStorage.getItem("isAuthenticated") || "false");
   });
 
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    return localStorage.getItem("isAdmin") === "true";
+    return JSON.parse(localStorage.getItem("isAdmin") || "false");
   });
 
   useEffect(() => {
@@ -22,6 +23,8 @@ function App() {
   const handleLogin = (isAdmin: boolean) => {
     setIsAuthenticated(true);
     setIsAdmin(isAdmin);
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
   };
 
   const handleLogout = () => {
@@ -40,11 +43,14 @@ function App() {
 
         {/* Protected Routes */}
         {isAuthenticated ? (
-          isAdmin ? (
-            <Route path="/admin-dashboard" element={<AdminDashboard onLogout={handleLogout} />} />
-          ) : (
-            <Route path="/user-dashboard" element={<Dashboard onLogout={handleLogout} />} />
-          )
+          <>
+            {isAdmin ? (
+              <Route path="/admin-dashboard" element={<AdminDashboard onLogout={handleLogout} />} />
+            ) : (
+              <Route path="/user-dashboard" element={<Dashboard onLogout={handleLogout} />} />
+            )}
+            <Route path="*" element={<Navigate to={isAdmin ? "/admin-dashboard" : "/user-dashboard"} />} />
+          </>
         ) : (
           <Route path="*" element={<Navigate to="/auth" />} />
         )}

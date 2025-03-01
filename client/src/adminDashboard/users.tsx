@@ -86,8 +86,8 @@ export default function UsersManagement() {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
         <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
         <button
           onClick={() => { setShowModal(true); setIsEditing(false); }}
@@ -105,26 +105,26 @@ export default function UsersManagement() {
           placeholder="Search users..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg"
+          className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-lg"
         />
       </div>
 
-
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Responsive Table */}
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentUsers.map(user => (
               <tr key={user.id}>
-                <td className="px-6 py-4 text-sm text-gray-900">{user.full_name}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{user.email}</td>
-                <td className="px-6 py-4 text-sm">
+                <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">{user.full_name}</td>
+                <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">{user.email}</td>
+                <td className="px-4 sm:px-6 py-4 text-sm">
                   <div className="flex space-x-2">
                     <button
                       className="text-blue-600 hover:text-blue-800"
@@ -156,9 +156,10 @@ export default function UsersManagement() {
         ))}
       </div>
 
+      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold text-gray-900 mb-4">{isEditing ? 'Edit User' : 'Add New User'}</h3>
             <form onSubmit={isEditing ? handleEditUser : handleAddUser} className="space-y-4">
               <div>

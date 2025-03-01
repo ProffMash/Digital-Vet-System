@@ -21,12 +21,14 @@ export default function Medications() {
   const [showTooltip, setShowTooltip] = useState(true);
   const medicationsPerPage = 5;
 
+  // Fetch medications from the API
+  const fetchMedicines = async () => {
+    const data = await getMedicines();
+    setMedications(data);
+    setFilteredMedications(data);
+  };
+
   useEffect(() => {
-    const fetchMedicines = async () => {
-      const data = await getMedicines();
-      setMedications(data);
-      setFilteredMedications(data);
-    };
     fetchMedicines();
   }, []);
 
@@ -87,6 +89,10 @@ export default function Medications() {
       };
       await createSale(sale);
       toast.success("Purchase successful! Confirmation sent to your phone number.");
+
+      // Refresh the medication list after purchase
+      await fetchMedicines();
+
       setTimeout(() => {
         setShowPaymentModal(false);
         setStep(1);
