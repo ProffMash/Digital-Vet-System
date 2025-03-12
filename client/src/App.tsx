@@ -11,27 +11,27 @@ function App() {
     return JSON.parse(localStorage.getItem("isAuthenticated") || "false");
   });
 
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    return JSON.parse(localStorage.getItem("isAdmin") || "false");
+  const [userRole, setUserRole] = useState<string>(() => {
+    return localStorage.getItem("userRole") || "";
   });
 
   useEffect(() => {
     localStorage.setItem("isAuthenticated", JSON.stringify(isAuthenticated));
-    localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-  }, [isAuthenticated, isAdmin]);
+    localStorage.setItem("userRole", userRole);
+  }, [isAuthenticated, userRole]);
 
-  const handleLogin = (isAdmin: boolean) => {
+  const handleLogin = (role: string) => {
     setIsAuthenticated(true);
-    setIsAdmin(isAdmin);
+    setUserRole(role);
     localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
+    localStorage.setItem("userRole", role);
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    setIsAdmin(false);
+    setUserRole("");
     localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("userRole");
   };
 
   return (
@@ -44,12 +44,12 @@ function App() {
         {/* Protected Routes */}
         {isAuthenticated ? (
           <>
-            {isAdmin ? (
+            {userRole === "admin" ? (
               <Route path="/admin-dashboard" element={<AdminDashboard onLogout={handleLogout} />} />
             ) : (
               <Route path="/user-dashboard" element={<Dashboard onLogout={handleLogout} />} />
             )}
-            <Route path="*" element={<Navigate to={isAdmin ? "/admin-dashboard" : "/user-dashboard"} />} />
+            <Route path="*" element={<Navigate to={userRole === "admin" ? "/admin-dashboard" : "/user-dashboard"} />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/auth" />} />

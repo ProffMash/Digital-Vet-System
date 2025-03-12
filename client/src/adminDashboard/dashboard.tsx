@@ -196,6 +196,7 @@ function Overview() {
     fetchData();
   }, []);
 
+    //start cards
   const stats = [
     { title: 'Total Patients', value: totalPatients, change: '+12%', icon: <User className="w-5 h-5 text-gray-400" /> },
     { title: 'Active Appointments', value: totalAppointments, change: '+8%', icon: <Calendar className="w-5 h-5 text-gray-400" /> },
@@ -205,6 +206,7 @@ function Overview() {
     { title: 'Total Users', value: totalUsers, change: '+15%', icon: <Users className="w-5 h-5 text-gray-400" /> }
   ];
 
+  //bar and line graph
   const data = [
     { name: 'Patients', value: totalPatients },
     { name: 'Appointments', value: totalAppointments },

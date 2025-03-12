@@ -4,7 +4,7 @@ import { X, Eye, EyeOff } from "lucide-react";
 import { registerUser, loginUser } from "../Api/authApi";
 
 interface AuthProps {
-  onLogin: (isAdmin: boolean) => void;
+  onLogin: (role: string) => void;
 }
 
 export default function Auth({ onLogin }: AuthProps) {
@@ -13,7 +13,7 @@ export default function Auth({ onLogin }: AuthProps) {
 
   const [isModalOpen, setIsModalOpen] = useState(location.pathname === "/auth");
   const [isRegister, setIsRegister] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // State for "Login as Admin" checkbox
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -67,15 +67,16 @@ export default function Auth({ onLogin }: AuthProps) {
         // Save token
         localStorage.setItem("token", response.token);
 
-        // Check if user is admin
-        const isAdminUser = formData.email.toLowerCase().includes("admin");
+        // Determine user role
+        const role =
+          isAdmin || formData.email.toLowerCase().includes("admin") ? "admin" : "user";
 
         // Notify parent component
-        onLogin(isAdminUser);
+        onLogin(role);
 
         // Close modal and redirect
         setIsModalOpen(false);
-        navigate(isAdminUser ? "/admin-dashboard" : "/user-dashboard");
+        navigate(role === "admin" ? "/admin-dashboard" : "/user-dashboard");
       }
     } catch (error) {
       console.error("Authentication failed:", error);
@@ -184,18 +185,20 @@ export default function Auth({ onLogin }: AuthProps) {
               </button>
             </div>
           )}
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="isAdmin"
-              checked={isAdmin}
-              onChange={(e) => setIsAdmin(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="isAdmin" className="text-sm text-gray-700">
-              Login as Administrator
-            </label>
-          </div>
+          {!isRegister && (
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isAdmin"
+                checked={isAdmin}
+                onChange={(e) => setIsAdmin(e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isAdmin" className="text-sm text-gray-700">
+                Login as Administrator
+              </label>
+            </div>
+          )}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"

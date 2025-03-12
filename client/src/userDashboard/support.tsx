@@ -11,7 +11,7 @@ export default function Support() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createContact({ name: subject, email, message });
+      await createContact({ subject: subject, email, message });
       alert('Message sent! Our team will contact you soon.');
       setShowNewTicketModal(false);
       setEmail('');

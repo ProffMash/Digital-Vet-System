@@ -11,7 +11,7 @@ const ContactSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createContact({ name: subject, email, message: subject + ": " + message });
+      await createContact({ subject: subject, email, message: subject + ": " + message });
       alert('Message sent! Our team will contact you soon.');
       setEmail('');
       setSubject('');

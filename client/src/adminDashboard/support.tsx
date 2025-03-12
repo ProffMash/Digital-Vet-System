@@ -1,29 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Search, CheckCircle2, XCircle } from 'lucide-react';
-import { getContacts, deleteContact, Contact } from '../Api/contactApi';  // Importing the API functions
+import { Search, XCircle, Eye } from 'lucide-react';
+import { getContacts, deleteContact, Contact } from '../Api/contactApi';
 import { Toaster, toast } from 'sonner';
 
 const AdminSupport: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [messages, setMessages] = useState<Contact[]>([]); // State to hold support messages
-  const [loading, setLoading] = useState(true); // Loading state
-  const [currentPage, setCurrentPage] = useState(1); // Current page
-  const [itemsPerPage] = useState(6); // Number of items per page
-  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const [messages, setMessages] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedMessage, setSelectedMessage] = useState<Contact | null>(null); // State to hold the selected message for detailed view
 
-  // Fetch support messages on component mount or page change
+  // Fetch support messages
   useEffect(() => {
     const fetchSupportMessages = async () => {
       try {
-        const data = await getContacts(); // Fetch all messages
+        const data = await getContacts();
         const filteredData = data.filter(message =>
-          message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
           message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
           message.message.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
         setMessages(filteredData);
-        setTotalPages(Math.ceil(filteredData.length / itemsPerPage)); // Calculate total pages
+        setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
       } catch (error) {
         console.error('Error fetching support messages:', error);
       } finally {
@@ -32,18 +33,28 @@ const AdminSupport: React.FC = () => {
     };
 
     fetchSupportMessages();
-  }, [searchQuery, currentPage]); // Re-fetch when search query or page changes
+  }, [searchQuery, currentPage]);
 
   // Handle delete action
   const handleDelete = async (id: number) => {
     try {
       await deleteContact(id);
-      setMessages(messages.filter(message => message.contact_id !== id)); // Remove the deleted message from the list
+      setMessages(messages.filter(message => message.contact_id !== id));
       toast.success('Message deleted successfully');
     } catch (error) {
       console.error('Error deleting support message:', error);
       toast.error('Failed to delete message');
     }
+  };
+
+  // Handle view details action
+  const handleViewDetails = (message: Contact) => {
+    setSelectedMessage(message); // Set the selected message for detailed view
+  };
+
+  // Close the detailed view modal
+  const closeDetailsModal = () => {
+    setSelectedMessage(null);
   };
 
   // Get messages for the current page
@@ -79,16 +90,15 @@ const AdminSupport: React.FC = () => {
           <thead>
             <tr className="text-left text-sm text-gray-700 border-b border-gray-200 bg-gray-100">
               <th className="px-6 py-4">ID</th>
-              <th className="px-6 py-4">Name</th>
+              <th className="px-6 py-4">Subject</th>
               <th className="px-6 py-4">Email</th>
-              <th className="px-6 py-4">Message</th>
               <th className="px-6 py-4">Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="text-center py-4 text-gray-600">
+                <td colSpan={4} className="text-center py-4 text-gray-600">
                   Loading...
                 </td>
               </tr>
@@ -96,15 +106,20 @@ const AdminSupport: React.FC = () => {
               paginatedMessages.map(message => (
                 <tr key={message.contact_id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="px-6 py-4">#{message.contact_id}</td>
-                  <td className="px-6 py-4">{message.name}</td>
+                  <td className="px-6 py-4">{message.subject}</td>
                   <td className="px-6 py-4">{message.email}</td>
-                  <td className="px-6 py-4 truncate max-w-xs">{message.message}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <button className="text-green-600 hover:text-green-800" onClick={() => message.contact_id !== undefined && handleDelete(message.contact_id)}>
-                        <CheckCircle2 className="h-5 w-5" />
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => handleViewDetails(message)}
+                      >
+                        <Eye className="h-5 w-5" />
                       </button>
-                      <button className="text-red-600 hover:text-red-800" onClick={() => message.contact_id !== undefined && handleDelete(message.contact_id)}>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => message.contact_id !== undefined && handleDelete(message.contact_id)}
+                      >
                         <XCircle className="h-5 w-5" />
                       </button>
                     </div>
@@ -113,7 +128,7 @@ const AdminSupport: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="text-center py-4 text-gray-600">
+                <td colSpan={4} className="text-center py-4 text-gray-600">
                   No support messages found.
                 </td>
               </tr>
@@ -138,6 +153,37 @@ const AdminSupport: React.FC = () => {
           Next
         </button>
       </div>
+
+      {/* Modal for detailed view */}
+      {selectedMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Message Details</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Subject:</label>
+                <p className="mt-1 text-gray-900">{selectedMessage.subject}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Email:</label>
+                <p className="mt-1 text-gray-900">{selectedMessage.email}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Message:</label>
+                <p className="mt-1 text-gray-900 whitespace-pre-wrap">{selectedMessage.message}</p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={closeDetailsModal}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
