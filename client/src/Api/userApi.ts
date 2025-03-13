@@ -6,8 +6,8 @@ interface User {
 }
 
 // Base URL for the API
-const BASE_URL = 'http://127.0.0.1:8000/api/users';
-const Base_URL = 'http://127.0.0.1:8000/api/register/'
+const BASE_URL = 'https://digital-vet-backend.onrender.com/api/users';
+const Base_URL = 'https://digital-vet-backend.onrender.com/api/register/'
 
 // Function to fetch all users
 export const fetchUsers = async (): Promise<User[]> => {

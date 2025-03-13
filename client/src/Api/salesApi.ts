@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getMedicines } from "./medsalesApi";
 
-const BASE_URL = "http://127.0.0.1:8000/api/sales/";
+const BASE_URL = "https://digital-vet-backend.onrender.com/api/sales/";
 
 export interface Sale {
   medicine_name: any;

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Define the base URL for the API
-const BASE_URL = 'http://127.0.0.1:8000/api';
+const BASE_URL = 'https://digital-vet-backend.onrender.com/api';
 
 // Define the interface for the user data
 interface UserData {
