@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stethoscope, Syringe, Microscope, Scissors, Heart, Dog, Clock } from 'lucide-react';
+import { Stethoscope, Syringe, Microscope, Scissors, Heart, Dog, Clock, LogIn } from 'lucide-react';
 import { AppointmentModal } from './components/appointment';
 import ContactSection from './services/contacts';
 
@@ -139,6 +139,13 @@ const LandingPage = () => {
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
                 >
                   Book an Appointment
+                </button>
+                <button
+                  onClick={() => navigate("/auth")}
+                  className="flex items-center gap-2 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition duration-300"
+                >
+                  Get Started
+                  <LogIn size={20} />
                 </button>
               </div>
             </div>
