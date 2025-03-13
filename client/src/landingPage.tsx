@@ -140,13 +140,13 @@ const LandingPage = () => {
                 >
                   Book an Appointment
                 </button>
-                <a
-                  href="/auth"
+                <button
+                  onClick={() => navigate("/auth")}
                   className="flex items-center gap-2 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition duration-300"
                 >
                   Get Started
                   <LogIn size={20} />
-                </a>
+                </button>
               </div>
             </div>
             <div className="relative h-[400px]">
