@@ -1,4 +1,3 @@
-// Define the User interface based on the sample data
 interface User {
     id: number;
     full_name: string;
